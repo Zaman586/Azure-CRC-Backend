@@ -23,8 +23,8 @@ def mock_request():
 @patch('function_app.container')
 def test_http_triggerzaman_with_name(mock_container, mock_request, monkeypatch):
     # Load environment variables for testing
-    monkeypatch.setenv("COSMOSDB_ENDPOINT", os.getenv("COSMOSDB_ENDPOINT"))
-    monkeypatch.setenv("COSMOSDB_KEY", os.getenv("COSMOSDB_KEY"))
+    monkeypatch.setenv("COSMOS_DB_ENDPOINT", os.getenv("COSMOS_DB_ENDPOINT"))
+    monkeypatch.setenv("COSMOS_DB_KEY", os.getenv("COSMOS_DB_KEY"))
 
     # Set up the mock return value for the container's read_item method
     mock_container.read_item.return_value = {'visitor_count': 1}
