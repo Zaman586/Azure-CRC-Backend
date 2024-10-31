@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccounts_zmnstorage_name": {
+      "value": null
+    },
+    "sites_ZamanCanadaCentral1_name": {
+      "value": null
+    },
+    "serverfarms_ASP_ZamanCanadaCentral1_0c3c_externalid": {
+      "value": null
+    },
+    "databaseAccounts_zamandb_name": {
+      "value": null
+    }
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccounts_zmnstorage_name": {
+      "defaultValue": "zmnstorage",
+      "type": "String"
+    },
+    "sites_ZamanCanadaCentral1_name": {
+      "defaultValue": "ZamanCanadaCentral1",
+      "type": "String"
+    },
+    "serverfarms_ASP_ZamanCanadaCentral1_0c3c_externalid": {
+      "defaultValue": "/subscriptions/370bedb1-f7c7-4a3c-86ea-885dc5ef342c/resourceGroups/zamanresource/providers/Microsoft.Web/serverfarms/ASP-ZamanCanadaCentral1-0c3c",
+      "type": "String"
+    },
+    "databaseAccounts_zamandb_name": {
+      "defaultValue": "zamandb",
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2024-05-15",
+      "name": "[parameters('databaseAccounts_zamandb_name')]",
+      "location": "Canada Central",
+      "tags": {
+        "defaultExperience": "Core (SQL)",
+        "hidden-cosmos-mmspecial": ""
+      },
+      "kind": "GlobalDocumentDB",
+      "identity": {
+        "type": "None"
+      },
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "enableAutomaticFailover": false,
+        "enableMultipleWriteLocations": false,
+        "isVirtualNetworkFilterEnabled": false,
+        "virtualNetworkRules": [],
+        "disableKeyBasedMetadataWriteAccess": false,
+        "enableFreeTier": false,
+        "enableAnalyticalStorage": false,
+        "analyticalStorageConfiguration": {
+          "schemaType": "WellDefined"
+        },
+        "databaseAccountOfferType": "Standard",
+        "defaultIdentity": "FirstPartyIdentity",
+        "networkAclBypass": "None",
+        "disableLocalAuth": false,
+        "enablePartitionMerge": false,
+        "enableBurstCapacity": false,
+        "minimalTlsVersion": "Tls12",
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session",
+          "maxIntervalInSeconds": 5,
+          "maxStalenessPrefix": 100
+        },
+        "locations": [
+          {
+            "locationName": "Canada Central",
+            "failoverPriority": 0,
+            "isZoneRedundant": true
+          }
+        ],
+        "cors": [],
+        "capabilities": [
+          {
+            "name": "EnableServerless"
+          }
+        ],
+        "ipRules": [],
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupIntervalInMinutes": 240,
+            "backupRetentionIntervalInHours": 8,
+            "backupStorageRedundancy": "Geo"
+          }
+        },
+        "networkAclBypassResourceIds": [],
+        "capacity": {
+          "totalThroughputLimit": 4000
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2024-05-15",
+      "name": "[concat(parameters('databaseAccounts_zamandb_name'), '/', parameters('databaseAccounts_zamandb_name'), 'id')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_zamandb_name'))]"
+      ],
+      "properties": {
+        "resource": {
+          "id": "zamandbid"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions",
+      "apiVersion": "2024-05-15",
+      "name": "[concat(parameters('databaseAccounts_zamandb_name'), '/00000000-0000-0000-0000-000000000001')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_zamandb_name'))]"
+      ],
+      "properties": {
+        "roleName": "Cosmos DB Built-in Data Reader",
+        "type": "BuiltInRole",
+        "assignableScopes": [
+          "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_zamandb_name'))]"
+        ],
+        "permissions": [
+          {
+            "dataActions": [
+              "Microsoft.DocumentDB/databaseAccounts/readMetadata",
+              "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery",
+              "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed",
+              "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read"
+            ],
+            "notDataActions": []
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions",
+      "apiVersion": "2024-05-15",
+      "name": "[concat(parameters('databaseAccounts_zamandb_name'), '/00000000-0000-0000-0000-000000000002')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_zamandb_name'))]"
+      ],
+      "properties": {
+        "roleName": "Cosmos DB Built-in Data Contributor",
+        "type": "BuiltInRole",
+        "assignableScopes": [
+          "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_zamandb_name'))]"
+        ],
+        "permissions": [
+          {
+            "dataActions": [
+              "Microsoft.DocumentDB/databaseAccounts/readMetadata",
+              "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/*",
+              "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/*"
+            ],
+            "notDataActions": []
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2024-05-15",
+      "name": "[concat(parameters('databaseAccounts_zamandb_name'), '/', parameters('databaseAccounts_zamandb_name'), 'id/zamanconid')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_zamandb_name'), concat(parameters('databaseAccounts_zamandb_name'), 'id'))]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_zamandb_name'))]"
+      ],
+      "properties": {
+        "resource": {
+          "id": "zamanconid",
+          "indexingPolicy": {
+            "indexingMode": "consistent",
+            "automatic": true,
+            "includedPaths": [
+              {
+                "path": "/*"
+              }
+            ],
+            "excludedPaths": [
+              {
+                "path": "/\"_etag\"/?"
+              }
+            ]
+          },
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash",
+            "version": 2
+          },
+          "uniqueKeyPolicy": {
+            "uniqueKeys": []
+          },
+          "conflictResolutionPolicy": {
+            "mode": "LastWriterWins",
+            "conflictResolutionPath": "/_ts"
+          },
+          "computedProperties": []
+        }
+      }
+    }
+  ]
+}
